@@ -35,6 +35,8 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     line-height: 1;
+    font-family: "Source Sans 3", sans-serif;
+    height: 100%;
   }
   menu, ol, ul {
     list-style: none;
@@ -54,10 +56,7 @@ const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
     font-size: 10px; /** 10px === 1rem */
-  }
-  body {
-    font-family: "Source Sans 3", sans-serif;
-    padding:25px;
+    color: #1a3862;
   }
   a {
     text-decoration: none;

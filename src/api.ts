@@ -1,6 +1,6 @@
 import xml2js from 'xml2js';
 import jsonp from 'jsonp';
-
+import { IGeo, IMountains, IMountainInfo } from './atoms';
 export interface IAddrList {
   y_coor: string;
   full_addr: string;
@@ -59,19 +59,8 @@ export async function fetchAddrList(cd: string = '') {
   return newArr;
 }
 
-export async function getMountainList(mode: string, val: string): Promise<any> {
-  let text;
-
-  switch (mode) {
-    case 'addr':
-      text = `attrFilter=emdCd:=:${val}`;
-      break;
-    case 'search':
-      text = `attrFilter=mntn_nm:=:${val}`;
-      break;
-  }
-
-  const url = `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=LT_L_FRSTCLIMB&key=${process.env.REACT_APP_VWORLD_KEY}&domain=${process.env.REACT_APP_DOMAIN}&${text}`;
+export async function getMountainList(val: string): Promise<any> {
+  const url = `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=LT_L_FRSTCLIMB&key=${process.env.REACT_APP_VWORLD_KEY}&domain=${process.env.REACT_APP_DOMAIN}&attrFilter=emdCd:=:${val}`;
   console.log('url', url);
   return new Promise((resolve, reject) => {
     jsonp(url, { param: 'callback' }, (error, data) => {
@@ -86,17 +75,21 @@ export async function getMountainList(mode: string, val: string): Promise<any> {
           },
         } = data;
 
-        const groupedFeatures = features.reduce((acc: any, feature: any) => {
-          const mountainName = feature.properties.mntn_nm;
+        const groupedFeatures = features.reduce(
+          (acc: { [mountainName: string]: IGeo[] }, feature: IGeo) => {
+            const mountainName = feature.properties.mntn_nm;
+            console.log('feature', feature);
+            console.log('acc', acc);
+            if (!acc[mountainName]) {
+              acc[mountainName] = [];
+            }
 
-          if (!acc[mountainName]) {
-            acc[mountainName] = [];
-          }
+            acc[mountainName].push(feature);
 
-          acc[mountainName].push(feature);
-
-          return acc;
-        }, {});
+            return acc;
+          },
+          {}
+        );
 
         resolve(groupedFeatures);
       }
@@ -113,7 +106,7 @@ export async function getMountainInfo(mountainName: string) {
 
   const xmlText = await rs.text();
   const parser = new xml2js.Parser();
-  let newArr: string[] = [];
+  let newArr: IMountainInfo[] = [];
   parser.parseString(xmlText, (err, result) => {
     if (err) {
       console.error('Error parsing XML:', err);
@@ -137,13 +130,15 @@ export async function getStanReginCdList(keword: string) {
       label: data.locallow_nm,
       value: data.region_cd.slice(0, 8),
     }));
-
-  return newArr;
+  return newArr[0];
 }
 
-export async function mergeMntnInfo(mode: string, val: string) {
-  const mountains = await getMountainList(mode, val);
-  const newMountains: any = {};
+export async function mergeMntnInfo(keyword: string) {
+  const { value } = await getStanReginCdList(keyword);
+
+  const mountains = await getMountainList(value);
+
+  const newMountains: IMountains = {};
 
   const mountainInfoPromises = Object.keys(mountains).map(async (name) => {
     const mntnInfo = await getMountainInfo(name);
