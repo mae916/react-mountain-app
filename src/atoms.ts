@@ -24,6 +24,21 @@ export interface IMountainInfo {
   rcmmncoursimageseq: string[];
 }
 
+export interface ISearchResults {
+  address_name: string;
+  category_group_code: string;
+  category_group_name: string;
+  category_name: string;
+  distance: string;
+  id: string;
+  phone: string;
+  place_name: string;
+  place_url: string;
+  road_address_name: string;
+  x: string;
+  y: string;
+}
+
 interface IGeometry {
   type: string;
   coordinates: number[][];
@@ -36,51 +51,47 @@ interface IProperties {
   sec_len: string;
   mntn_nm: string;
 }
-
-export interface IGeo {
+export interface IMountains {
   geometry: IGeometry;
   id: string;
   properties: IProperties;
   type: string;
 }
 
-interface IMountain {
-  geo: IGeo[];
-  info: IMountainInfo;
-}
-
-export interface IMountains {
-  [key: string]: IMountain;
-}
-
 //산 정보리스트
-export const mountainsState = atom<IMountains>({
+export const mountainsState = atom<IMountains[] | []>({
   key: 'mountains',
-  default: {},
+  default: [],
 });
 
 //리스트에서 선택된 산의 정보
-export const selectedMntnState = atom<IMountain | null>({
-  key: 'selectedMntn',
-  default: null,
-});
+// export const selectedMntnState = atom<IMountain | null>({
+//   key: 'selectedMntn',
+//   default: null,
+// });
 
 // 받아온 산 정보를 변형
-export const mountainSelector = selectorFamily<IMountain, string>({
-  key: 'mountainSelector',
-  get:
-    (param: string) =>
-    ({ get }) => {
-      const mountains = get(mountainsState);
-      return mountains[param] ?? undefined;
-    },
-  set:
-    (param: string) =>
-    ({ set }, newVal) => {
-      if (newVal) {
-        set(selectedMntnState, newVal as IMountain);
-      } else {
-        console.warn(`No mountain data found for key: ${param}`);
-      }
-    },
+// export const mountainSelector = selectorFamily<IMountain | null, string>({
+//   key: 'mountainSelector',
+//   get:
+//     (param: string) =>
+//     ({ get }) => {
+//       const mountains = get(mountainsState);
+//       return mountains?.[param] ?? null;
+//     },
+//   set:
+//     (param: string) =>
+//     ({ set }, newVal) => {
+//       if (newVal) {
+//         set(selectedMntnState, newVal as IMountain);
+//       } else {
+//         console.warn(`No mountain data found for key: ${param}`);
+//       }
+//     },
+// });
+
+// 검색된 주소에 대한 리스트
+export const searchResultsState = atom<ISearchResults[]>({
+  key: 'searchResults',
+  default: [],
 });

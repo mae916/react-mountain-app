@@ -1,8 +1,9 @@
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import MountainList from './MountainList';
-import { mountainsState, IMountains } from '../atoms';
+import { mountainsState, IMountains, searchResultsState } from '../atoms';
 import { useEffect } from 'react';
+import { setMarkers } from '../utils/map';
 
 const Lists = styled.ul`
   padding: 20px;
@@ -17,28 +18,17 @@ const Empty = styled.li`
 `;
 
 function MountainLists() {
-  const mountains = useRecoilValue<IMountains>(mountainsState);
-  console.log('mountains', mountains);
+  const results = useRecoilValue(searchResultsState);
+  console.log('result', results);
 
   useEffect(() => {
-    const marker = new window.kakao.maps.Marker({
-      map: window.kakaoMap,
-      position: new window.kakao.maps.LatLng(33.450701, 126.570667),
-    });
-
-    marker.setMap(window.kakaoMap);
-  }, []);
+    setMarkers(results);
+  }, [results]);
 
   return (
     <Lists>
-      {mountains ? (
-        Object.keys(mountains).map((mntnName: string) => (
-          <MountainList
-            key={mountains[mntnName]?.info.mntnid[0]}
-            mntnId={mountains[mntnName]?.info.mntnid[0]}
-            mntnName={mntnName}
-          />
-        ))
+      {results ? (
+        results.map((result) => <MountainList key={result.id} {...result} />)
       ) : (
         <Empty>검색 결과가 없습니다.</Empty>
       )}

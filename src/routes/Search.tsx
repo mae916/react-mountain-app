@@ -1,10 +1,9 @@
 import Map from '../components/Map';
-import { mergeMntnInfo } from '../api';
 import { useState } from 'react';
 import styled from 'styled-components';
 import MountainLists from '../components/MountainLists';
-import { useSetRecoilState } from 'recoil';
-import { mountainsState, IMountains } from '../atoms';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { mountainsState, IMountains, searchResultsState } from '../atoms';
 import { Switch, Route, useHistory } from 'react-router-dom';
 import MntnView from './MntnView';
 import profileImg from '../assets/images/profileImg.png';
@@ -64,13 +63,20 @@ const SearchWrapper = styled.div`
 `;
 
 function Search() {
-  const setMountains = useSetRecoilState<IMountains>(mountainsState);
   const [keyword, setKeyword] = useState<string>('');
+  const setResult = useSetRecoilState(searchResultsState);
   const history = useHistory();
 
   const searchHandler = async () => {
-    const mountainList = await mergeMntnInfo(keyword);
-    setMountains(mountainList);
+    var places = new window.kakao.maps.services.Places();
+
+    var callback = function (result: any, status: any) {
+      if (status === window.kakao.maps.services.Status.OK) {
+        setResult(result);
+      }
+    };
+    places.keywordSearch(keyword, callback);
+
     history.push(`/search/${keyword}/address`);
   };
 
@@ -92,7 +98,7 @@ function Search() {
             value={keyword}
             onChange={getSearchKeyword}
             type="text"
-            placeholder="동 이름을 검색해주세요"
+            placeholder="주소를 입력해주세요."
           />
           <i onClick={searchHandler} className="xi-search"></i>
         </SearchWrapper>

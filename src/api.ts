@@ -1,6 +1,6 @@
 import xml2js from 'xml2js';
 import jsonp from 'jsonp';
-import { IGeo, IMountains, IMountainInfo } from './atoms';
+import { IMountains, IMountainInfo } from './atoms';
 export interface IAddrList {
   y_coor: string;
   full_addr: string;
@@ -59,39 +59,18 @@ export async function fetchAddrList(cd: string = '') {
   return newArr;
 }
 
-export async function getMountainList(val: string): Promise<any> {
-  const url = `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=LT_L_FRSTCLIMB&key=${process.env.REACT_APP_VWORLD_KEY}&domain=${process.env.REACT_APP_DOMAIN}&attrFilter=emdCd:=:${val}`;
-  console.log('url', url);
+export async function getMountainList(
+  coor: string[],
+  page: number
+): Promise<any> {
+  const url = `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=LT_L_FRSTCLIMB&key=${process.env.REACT_APP_VWORLD_KEY}&domain=${process.env.REACT_APP_DOMAIN}&geomFilter=POINT(${coor[0]} ${coor[1]})&size=10&page=${page}&buffer=1000`;
+
   return new Promise((resolve, reject) => {
     jsonp(url, { param: 'callback' }, (error, data) => {
       if (error) {
         reject(error);
       } else {
-        const {
-          response: {
-            result: {
-              featureCollection: { features },
-            },
-          },
-        } = data;
-
-        const groupedFeatures = features.reduce(
-          (acc: { [mountainName: string]: IGeo[] }, feature: IGeo) => {
-            const mountainName = feature.properties.mntn_nm;
-            console.log('feature', feature);
-            console.log('acc', acc);
-            if (!acc[mountainName]) {
-              acc[mountainName] = [];
-            }
-
-            acc[mountainName].push(feature);
-
-            return acc;
-          },
-          {}
-        );
-
-        resolve(groupedFeatures);
+        resolve(data);
       }
     });
   });
@@ -133,23 +112,23 @@ export async function getStanReginCdList(keword: string) {
   return newArr[0];
 }
 
-export async function mergeMntnInfo(keyword: string) {
-  const { value } = await getStanReginCdList(keyword);
+// export async function mergeMntnInfo(keyword: string) {
+//   const { value } = await getStanReginCdList(keyword);
 
-  const mountains = await getMountainList(value);
+//   const mountains = await getMountainList(value);
 
-  const newMountains: IMountains = {};
+//   const newMountains: IMountains = {};
 
-  const mountainInfoPromises = Object.keys(mountains).map(async (name) => {
-    const mntnInfo = await getMountainInfo(name);
-    return { name, info: mntnInfo[0] };
-  });
-  const mountainInfos = await Promise.all(mountainInfoPromises);
-  for (const { name, info } of mountainInfos) {
-    newMountains[name] = {
-      geo: mountains[name],
-      info: info,
-    };
-  }
-  return newMountains;
-}
+//   const mountainInfoPromises = Object.keys(mountains).map(async (name) => {
+//     const mntnInfo = await getMountainInfo(name);
+//     return { name, info: mntnInfo[0] };
+//   });
+//   const mountainInfos = await Promise.all(mountainInfoPromises);
+//   for (const { name, info } of mountainInfos) {
+//     newMountains[name] = {
+//       geo: mountains[name],
+//       info: info,
+//     };
+//   }
+//   return newMountains;
+// }
