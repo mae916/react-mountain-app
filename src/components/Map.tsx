@@ -2,13 +2,21 @@ import { useEffect } from 'react';
 
 function Map() {
   useEffect(() => {
-    let container = document.getElementById('map'); // 지도를 담을 영역의 DOM 레퍼런스
-    let options = {
-      center: new window.kakao.maps.LatLng(33.450701, 126.570667), // 지도 중심 좌표
-      level: 3, // 지도의 레벨(확대, 축소 정도)
-    };
+    navigator.geolocation.getCurrentPosition((position) => {
+      const center = new window.kakao.maps.LatLng(
+        position.coords.latitude,
+        position.coords.longitude
+      );
 
-    window.kakaoMap = new window.kakao.maps.Map(container, options); // 지도 생성 및 객체 리턴
+      const container = document.getElementById('map'); // 지도를 담을 영역의 DOM 레퍼런스
+      const options = {
+        center: center, // 지도 중심 좌표
+        level: 3, // 지도의 레벨(확대, 축소 정도)
+      };
+
+      // center가 설정된 후 지도 생성
+      window.kakaoMap = new window.kakao.maps.Map(container, options);
+    });
   }, []);
 
   return <div id="map" style={{ width: '100%', height: '300px' }}></div>;

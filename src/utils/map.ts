@@ -31,12 +31,17 @@ export function setPolyline(path: string[]) {
     map: window.kakaoMap,
     path: path, // 경로 좌표 배열
     strokeWeight: 2,
-    strokeColor: '#FF00FF',
+    strokeColor: '#00a8ff',
     strokeOpacity: 0.8,
-    strokeStyle: 'dashed',
+    strokeStyle: 'solid',
   });
 
   polyline.setMap(window.kakaoMap);
+  return polyline;
+}
+
+export function removePolyline(polyline: any) {
+  polyline.setMap(null);
 }
 
 export function setCenters(datas: string[]) {
@@ -47,4 +52,19 @@ export function setCenters(datas: string[]) {
     bounds.extend(data);
   });
   window.kakaoMap.setBounds(bounds);
+}
+
+export function setRectangle(coor: number[]) {
+  var rectangle = new window.kakao.maps.Rectangle({
+    map: window.kakaoMap,
+    bounds: new window.kakao.maps.LatLngBounds(
+      new window.kakao.maps.LatLng(coor[1], coor[0]),
+      new window.kakao.maps.LatLng(coor[3], coor[2])
+    ),
+    strokeWeight: 2,
+    strokeColor: '#0097e6',
+    strokeOpacity: 0.8,
+    strokeStyle: 'solid',
+  });
+  rectangle.setMap(window.kakaoMap); // 지도에 올린다.
 }

@@ -1,4 +1,4 @@
-import { atom, selectorFamily } from 'recoil';
+import { atom, selector, selectorFamily } from 'recoil';
 
 export interface IMountainInfo {
   crcmrsghtngetcimageseq: [string];
@@ -56,12 +56,30 @@ export interface IMountains {
   id: string;
   properties: IProperties;
   type: string;
+  isChecked?: boolean;
 }
 
 //산 정보리스트
 export const mountainsState = atom<IMountains[] | []>({
   key: 'mountains',
   default: [],
+});
+
+export const mountainCoorSelector = selector<any>({
+  key: 'mountainCoor',
+  get: ({ get }) => {
+    const mountains = get(mountainsState);
+    const paths: any = [];
+
+    mountains.forEach((mountain) => {
+      const path = mountain.geometry.coordinates[0].map(
+        (coor: any) => new window.kakao.maps.LatLng(coor[1], coor[0])
+      );
+      paths.push(path); // path 배열을 paths에 추가
+    });
+    console.log('paths', paths);
+    return paths;
+  },
 });
 
 //리스트에서 선택된 산의 정보

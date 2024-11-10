@@ -63,7 +63,7 @@ export async function getMountainList(
   coor: string[],
   page: number
 ): Promise<any> {
-  const url = `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=LT_L_FRSTCLIMB&key=${process.env.REACT_APP_VWORLD_KEY}&domain=${process.env.REACT_APP_DOMAIN}&geomFilter=POINT(${coor[0]} ${coor[1]})&size=10&page=${page}&buffer=1000`;
+  const url = `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=LT_L_FRSTCLIMB&key=${process.env.REACT_APP_VWORLD_KEY}&domain=${process.env.REACT_APP_DOMAIN}&geomFilter=POINT(${coor[0]} ${coor[1]})&size=50&page=${page}&buffer=500`;
 
   return new Promise((resolve, reject) => {
     jsonp(url, { param: 'callback' }, (error, data) => {

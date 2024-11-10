@@ -91,7 +91,12 @@ function Search() {
     <>
       <SearchBox>
         <BackBtnBox>
-          <i className="xi-angle-left-min xi-x"></i>
+          <i
+            className="xi-angle-left-min xi-x"
+            onClick={() => {
+              history.goBack();
+            }}
+          ></i>
         </BackBtnBox>
         <SearchWrapper>
           <input
