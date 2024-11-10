@@ -19,7 +19,7 @@ function MountainList({ id, place_name, address_name, x, y }: ISearchResults) {
       <Link
         to={{
           pathname: `place/${id}`,
-          state: { coor: [x, y] },
+          state: { coor: [x, y], name: place_name },
         }}
       >
         {place_name} {address_name}

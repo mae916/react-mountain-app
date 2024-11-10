@@ -1,5 +1,5 @@
 import Map from '../components/Map';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import MountainLists from '../components/MountainLists';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -37,7 +37,7 @@ const ImgBox = styled.div`
   }
 `;
 
-const SearchWrapper = styled.div`
+const SearchWrapper = styled.form`
   height: 40px;
   display: flex;
   align-items: center;
@@ -52,10 +52,15 @@ const SearchWrapper = styled.div`
     padding: 10px 20px;
     font-size: 1rem;
   }
+`;
+
+const Button = styled.button`
+  position: absolute;
+  border: 0;
+  right: 12px;
+  top: 9px;
+  background-color: transparent;
   i {
-    position: absolute;
-    right: 20px;
-    top: 10px;
     color: #969496;
     font-weight: 900;
     font-size: 1rem;
@@ -67,11 +72,21 @@ function Search() {
   const setResult = useSetRecoilState(searchResultsState);
   const history = useHistory();
 
-  const searchHandler = async () => {
+  const searchHandler = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const regex = /산$/;
+    if (keyword == '') {
+      return alert('검색어를 입력해주세요.');
+    } else if (!regex.test(keyword)) {
+      return alert('산 이름으로 검색해주세요.');
+    }
+
     var places = new window.kakao.maps.services.Places();
 
     var callback = function (result: any, status: any) {
       if (status === window.kakao.maps.services.Status.OK) {
+        const regex = /산$/;
         setResult(result);
       }
     };
@@ -81,11 +96,16 @@ function Search() {
   };
 
   const getSearchKeyword = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      currentTarget: { value },
-    } = event;
+    const { value } = event.currentTarget;
     setKeyword(value);
   };
+
+  useEffect(() => {
+    const regex = /[!@#\$%\^\&*\)\(+=._-]+/g;
+    if (regex.test(keyword)) {
+      setKeyword((prev) => prev.replace(regex, ''));
+    }
+  }, [keyword]);
 
   return (
     <>
@@ -98,14 +118,16 @@ function Search() {
             }}
           ></i>
         </BackBtnBox>
-        <SearchWrapper>
+        <SearchWrapper onSubmit={searchHandler}>
           <input
             value={keyword}
             onChange={getSearchKeyword}
             type="text"
-            placeholder="주소를 입력해주세요."
+            placeholder="산 이름을 입력해주세요."
           />
-          <i onClick={searchHandler} className="xi-search"></i>
+          <Button>
+            <i className="xi-search"></i>
+          </Button>
         </SearchWrapper>
         <ImgBox>
           <img src={profileImg} alt="" />

@@ -19,16 +19,21 @@ const Empty = styled.li`
 
 function MountainLists() {
   const results = useRecoilValue(searchResultsState);
-  console.log('result', results);
+  const regex = /산$/;
+
+  // '산'으로 끝나는 장소명만 필터링하여 mntns 배열 생성
+  const mntns = results.filter((result) => regex.test(result.place_name));
 
   useEffect(() => {
-    setMarkers(results);
-  }, [results]);
+    if (mntns.length > 0) {
+      setMarkers(mntns);
+    }
+  }, [mntns]);
 
   return (
     <Lists>
-      {results ? (
-        results.map((result) => <MountainList key={result.id} {...result} />)
+      {mntns ? (
+        mntns.map((mntn) => <MountainList key={mntn.id} {...mntn} />)
       ) : (
         <Empty>검색 결과가 없습니다.</Empty>
       )}
